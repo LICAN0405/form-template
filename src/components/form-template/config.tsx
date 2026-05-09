@@ -1,5 +1,5 @@
 import type { ProColumns } from '@ant-design/pro-components'
-import { Button, Popconfirm, Space, Tag } from 'antd'
+import { Button, Popconfirm, Space, Tag, Tooltip } from 'antd'
 
 export type FormTemplateRecord = {
   id: number
@@ -96,23 +96,55 @@ export const columns = (
     title: '列1',
     dataIndex: 'column1',
     width: 160,
+    ellipsis: { showTitle: false },
+    render: (_, record) => (
+      <Tooltip title={record.column1}>
+        <span style={{ display: 'inline-block', maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {record.column1}
+        </span>
+      </Tooltip>
+    ),
   },
   {
     title: '列2',
     dataIndex: 'column2',
     width: 160,
+    ellipsis: { showTitle: false },
+    render: (_, record) => (
+      <Tooltip title={record.column2}>
+        <span style={{ display: 'inline-block', maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {record.column2}
+        </span>
+      </Tooltip>
+    ),
   },
   {
     title: '列3',
     dataIndex: 'column3',
     width: 120,
     search: false,
+    ellipsis: { showTitle: false },
+    render: (_, record) => (
+      <Tooltip title={record.column3}>
+        <span style={{ display: 'inline-block', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {record.column3}
+        </span>
+      </Tooltip>
+    ),
   },
   {
     title: '列4',
     dataIndex: 'column4',
     width: 160,
     search: false,
+    ellipsis: { showTitle: false },
+    render: (_, record) => (
+      <Tooltip title={record.column4}>
+        <span style={{ display: 'inline-block', maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {record.column4}
+        </span>
+      </Tooltip>
+    ),
   },
   {
     title: '列6',
