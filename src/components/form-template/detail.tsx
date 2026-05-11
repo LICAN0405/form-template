@@ -12,8 +12,8 @@ import type { UploadFile } from 'antd'
 import { forwardRef, useImperativeHandle, useState } from 'react'
 import { addFormTemplate, getFormTemplateDetail, updateFormTemplate } from './api'
 import type { FormTemplatePayload } from './api'
-import { formItemConfigs } from './config'
-import type { FormItemConfig, FormTemplateRecord } from './config'
+import { statusOptions } from './config'
+import type { FormTemplateRecord } from './config'
 import styles from './index.module.less'
 
 export type FormMode = 'add' | 'view' | 'edit'
@@ -111,6 +111,7 @@ const Detail = forwardRef<DetailRef, DetailProps>((props, ref) => {
   const [form] = Form.useForm<FormTemplateRecord>()
 
   const readonly = mode === 'view'
+  const column1Readonly = mode === 'view' || mode === 'edit'
 
   useImperativeHandle(ref, () => ({
     open: (openMode: FormMode, id?: number) => {
@@ -177,33 +178,7 @@ const Detail = forwardRef<DetailRef, DetailProps>((props, ref) => {
     }
   }
 
-  const renderFormItem = (item: FormItemConfig) => {
-    const commonProps = {
-      key: item.name,
-      name: item.name,
-      label: item.label,
-      placeholder: item.placeholder,
-      disabled: readonly,
-      readonly,
-      rules: readonly || !item.required ? [] : [{ required: true, message: item.placeholder ?? `请填写${item.label}` }],
-      colProps: { span: 24 },
-    }
-
-    if (item.valueType === 'digit') {
-      return <ProFormDigit {...commonProps} min={0} fieldProps={{ precision: 2 }} />
-    }
-
-    if (item.valueType === 'select') {
-      return <ProFormSelect {...commonProps} options={item.options} />
-    }
-
-    if (item.valueType === 'textarea') {
-      return <ProFormTextArea {...commonProps} fieldProps={{ rows: 4 }} />
-    }
-
-    return <ProFormText {...commonProps} />
-  }
-// 上传组件的公共属性配置，包含上传地址、请求头、预览和变更处理等逻辑，避免重复代码
+  // 上传组件的公共属性配置，包含上传地址、请求头、预览和变更处理等逻辑，避免重复代码
   const getUploadFieldProps = () => ({
     name: 'file',
     action: '/api/bjfiles/files/uploadFileAppend',
@@ -278,7 +253,64 @@ const Detail = forwardRef<DetailRef, DetailProps>((props, ref) => {
       loading={loading}
     >
       <ProFormText name="id" hidden />
-      {formItemConfigs.map(renderFormItem)}
+      <ProFormText
+        name="column1"
+        label="列1"
+        placeholder="请输入列1"
+        rules={readonly ? [] : [{ required: true, message: '请输入列1' }]}
+        disabled={column1Readonly}
+        readonly={column1Readonly}
+        colProps={{ span: 24 }}
+      />
+      <ProFormText
+        name="column2"
+        label="列2"
+        placeholder="请输入列2"
+        rules={readonly ? [] : [{ required: true, message: '请输入列2' }]}
+        disabled={readonly}
+        readonly={readonly}
+        colProps={{ span: 24 }}
+      />
+      <ProFormDigit
+        name="column3"
+        label="列3"
+        placeholder="请输入列3"
+        rules={readonly ? [] : [{ required: true, message: '请输入列3' }]}
+        disabled={readonly}
+        readonly={readonly}
+        min={0}
+        fieldProps={{ precision: 2 }}
+        colProps={{ span: 24 }}
+      />
+      <ProFormText
+        name="column4"
+        label="列4"
+        placeholder="请输入列4"
+        rules={readonly ? [] : [{ max: 50, message: '最多输入50字' }]}
+        disabled={readonly}
+        readonly={readonly}
+        colProps={{ span: 24 }}
+      />
+      <ProFormTextArea
+        name="column5"
+        label="列5"
+        placeholder="请输入列5"
+        rules={readonly ? [] : [{ max: 200, message: '最多输入200字' }]}
+        disabled={readonly}
+        readonly={readonly}
+        fieldProps={{ rows: 4 }}
+        colProps={{ span: 24 }}
+      />
+      <ProFormSelect
+        name="status"
+        label="列6"
+        placeholder="请选择列6"
+        options={statusOptions}
+        rules={readonly ? [] : [{ required: true, message: '请选择列6' }]}
+        disabled={readonly}
+        readonly={readonly}
+        colProps={{ span: 24 }}
+      />
       <ProFormUploadButton
         name="handlePhoto"
         label="处理照片"
