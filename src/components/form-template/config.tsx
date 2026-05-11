@@ -9,6 +9,8 @@ export type FormTemplateRecord = {
   column4: string
   column5: string
   status: 'enabled' | 'disabled'
+  handlePhoto?: string
+  attachment?: string
   createdAt: string
 }
 
