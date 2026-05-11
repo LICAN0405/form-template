@@ -1,17 +1,19 @@
 import { ProTable } from '@ant-design/pro-components'
 import type { ActionType } from '@ant-design/pro-components'
 import { Button, Empty, message } from 'antd'
-import { useRef } from 'react'
-import { deleteFormTemplate, getFormTemplatePage } from './api'
+import { useRef, useState } from 'react'
+import { deleteFormTemplate, exportFormTemplatePage, getFormTemplatePage } from './api'
 import type { GetFormTemplatePageParams } from './api'
 import { columns } from './config'
 import Detail from './detail'
 import type { DetailRef, FormMode } from './detail'
+import DownloadFile from './download-file'
 import styles from './index.module.less'
 
 const FormTemplate = () => {
   const detailRef = useRef<DetailRef>(null)
   const actionRef = useRef<ActionType | undefined>(undefined)
+  const [exportParams, setExportParams] = useState<GetFormTemplatePageParams>({})
 
   const openDetail = (mode: FormMode, id?: number) => {
     detailRef.current?.open(mode, id)
@@ -35,6 +37,7 @@ const FormTemplate = () => {
     },
   ) => {
     const { current = 1, pageSize = 10, ...searchParams } = params
+    setExportParams(searchParams)
     const res = await getFormTemplatePage({
       ...searchParams,
       current,
@@ -65,11 +68,36 @@ const FormTemplate = () => {
           defaultPageSize: 10,
           showTotal: (total) => <div>共 {total} 条</div>,
         }}
-        toolBarRender={() => [
-          <Button key="add" type="primary" onClick={() => openDetail('add')}>
-            新增
-          </Button>,
-        ]}
+        toolbar={{
+          actions: [
+            <Button key="add" type="primary" onClick={() => openDetail('add')}>
+              新增
+            </Button>,
+            <DownloadFile
+              key="export"
+              type="primary"
+              downloadFileButtonText="导出"
+              requestUrl="/api/form-template/export"
+              requestMethod="GET"
+              requestParams={exportParams}
+              fileName="表单模板"
+              mockRequest={() => exportFormTemplatePage(exportParams)}
+            />,
+            // 实操中使用
+            //   <DownloadFile
+            //   key="export"
+            //   type="primary"
+            //   downloadFileButtonText="导出"
+            //   requestHeaders={{
+            //     Authorization: `Bearer ${getCookie('token')}`,
+            //     projectId: localStorage.getItem('projectId') ?? '',
+            //   }}
+            //   requestUrl={`${baseUrl}/${moduleUrl.COMMON_V2}/materialWarehouse/export`}
+            //   requestMethod="GET"
+            //   requestParams={{}}
+            // />,
+          ],
+        }}
         scroll={{
           x: 'max-content',
           y: 'auto',

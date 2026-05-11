@@ -69,17 +69,23 @@ let mockList: FormTemplateRecord[] = [
 
 const cloneRecord = (record: FormTemplateRecord) => ({ ...record })
 
-export const getFormTemplatePage = async (params: GetFormTemplatePageParams = {}) => {
-  await wait()
+const filterFormTemplateList = (params: GetFormTemplatePageParams = {}) => {
+  const { column1, column2, status } = params
 
-  const { current = 1, pageSize = 10, column1, column2, status } = params
-  const filteredList = mockList.filter((item) => {
+  return mockList.filter((item) => {
     const matchColumn1 = column1 ? item.column1.includes(column1) : true
     const matchColumn2 = column2 ? item.column2.includes(column2) : true
     const matchStatus = status ? item.status === status : true
 
     return matchColumn1 && matchColumn2 && matchStatus
   })
+}
+
+export const getFormTemplatePage = async (params: GetFormTemplatePageParams = {}) => {
+  await wait()
+
+  const { current = 1, pageSize = 10 } = params
+  const filteredList = filterFormTemplateList(params)
   const start = (current - 1) * pageSize
   const end = start + pageSize
 
@@ -127,4 +133,33 @@ export const deleteFormTemplate = async ({ id }: { id: number }) => {
   await wait()
   mockList = mockList.filter((item) => item.id !== id)
   return true
+}
+
+const escapeCsvValue = (value?: string | number) => {
+  const text = String(value ?? '')
+  return `"${text.replaceAll('"', '""')}"`
+}
+
+export const exportFormTemplatePage = async (params: GetFormTemplatePageParams = {}) => {
+  await wait(180)
+
+  const statusTextMap: Record<FormTemplateRecord['status'], string> = {
+    enabled: '启用',
+    disabled: '停用',
+  }
+  const header = ['列1', '列2', '列3', '列4', '列5', '列6', '创建时间']
+  const rows = filterFormTemplateList(params).map((item) => [
+    item.column1,
+    item.column2,
+    item.column3,
+    item.column4,
+    item.column5,
+    statusTextMap[item.status],
+    item.createdAt,
+  ])
+  const csv = [header, ...rows].map((row) => row.map(escapeCsvValue).join(',')).join('\n')
+
+  return new Blob([`\uFEFF${csv}`], {
+    type: 'text/csv;charset=utf-8',
+  })
 }
