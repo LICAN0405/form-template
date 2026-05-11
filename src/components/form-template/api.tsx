@@ -163,3 +163,44 @@ export const exportFormTemplatePage = async (params: GetFormTemplatePageParams =
     type: 'text/csv;charset=utf-8',
   })
 }
+
+export const downloadFormTemplateImportTemplate = async () => {
+  await wait(180)
+
+  const header = ['列1', '列2', '列3', '列4', '列5', '列6']
+  const example = ['示例数据', '示例数据', '100', '示例数据', '示例详情', '启用']
+  const csv = [header, example].map((row) => row.map(escapeCsvValue).join(',')).join('\n')
+
+  return new Blob([`\uFEFF${csv}`], {
+    type: 'text/csv;charset=utf-8',
+  })
+}
+
+export const importFormTemplateFile = async (file: File) => {
+  await wait(360)
+
+  const record: FormTemplateRecord = {
+    id: mockId,
+    column1: `导入数据-${mockId}`,
+    column2: file.name,
+    column3: 0,
+    column4: '批量导入',
+    column5: '模拟导入生成的数据',
+    status: 'enabled',
+    createdAt: new Date().toLocaleString('zh-CN', { hour12: false }).replaceAll('/', '-'),
+  }
+
+  mockId += 1
+  mockList = [record, ...mockList]
+
+  return {
+    code: 200,
+    data: {
+      successTotal: 1,
+      failTotal: 0,
+      illegalDataNum: '',
+      repeatNum: '',
+    },
+    message: '导入成功',
+  }
+}

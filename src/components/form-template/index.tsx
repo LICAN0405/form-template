@@ -2,12 +2,19 @@ import { ProTable } from '@ant-design/pro-components'
 import type { ActionType } from '@ant-design/pro-components'
 import { Button, Empty, message } from 'antd'
 import { useRef, useState } from 'react'
-import { deleteFormTemplate, exportFormTemplatePage, getFormTemplatePage } from './api'
+import {
+  deleteFormTemplate,
+  downloadFormTemplateImportTemplate,
+  exportFormTemplatePage,
+  getFormTemplatePage,
+  importFormTemplateFile,
+} from './api'
 import type { GetFormTemplatePageParams } from './api'
 import { columns } from './config'
 import Detail from './detail'
 import type { DetailRef, FormMode } from './detail'
 import DownloadFile from './download-file'
+import Import from './import-file'
 import styles from './index.module.less'
 
 const FormTemplate = () => {
@@ -83,6 +90,28 @@ const FormTemplate = () => {
               fileName="表单模板"
               mockRequest={() => exportFormTemplatePage(exportParams)}
             />,
+            <Import
+              key="import"
+              type="primary"
+              style={{ width: 88 }}
+              importerText="批量导入"
+              downloadFileProps={{
+                downloadFileButtonText: '下载模板',
+                requestUrl: '/api/form-template/import/template',
+                requestMethod: 'POST',
+                fileName: '表单模板导入模板',
+                mockRequest: downloadFormTemplateImportTemplate,
+              }}
+              importerProps={{
+                action: '/api/form-template/import',
+                successInfo: false,
+                mockRequest: importFormTemplateFile,
+                afterImportSuccess: () => {
+                  actionRef.current?.reload()
+                  message.success('导入完成')
+                },
+              }}
+            />,
             // 实操中使用
             //   <DownloadFile
             //   key="export"
@@ -95,6 +124,33 @@ const FormTemplate = () => {
             //   requestUrl={`${baseUrl}/${moduleUrl.COMMON_V2}/materialWarehouse/export`}
             //   requestMethod="GET"
             //   requestParams={{}}
+            // />,
+            // 实操中使用
+            // <Import
+            //   key="import"
+            //   type="primary"
+            //   style={{ width: 80 }}
+            //   importerText="批量导入"
+            //   downloadFileProps={{
+            //     requestUrl: '/api/form-template/import/template',
+            //     requestHeaders: {
+            //       Authorization: `Bearer ${token}`,
+            //       projectId: localStorage.getItem('projectId') ?? '',
+            //     },
+            //     requestMethod: 'POST',
+            //   }}
+            //   importerProps={{
+            //     action: '/api/form-template/import',
+            //     headers: {
+            //       Authorization: `Bearer ${token}`,
+            //       projectId: localStorage.getItem('projectId') ?? '',
+            //     },
+            //     successInfo: false,
+            //     afterImportSuccess: () => {
+            //       actionRef.current?.reload()
+            //       message.success('导入完成')
+            //     },
+            //   }}
             // />,
           ],
         }}
