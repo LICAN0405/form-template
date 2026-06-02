@@ -1,6 +1,7 @@
 import { ProTable } from '@ant-design/pro-components'
 import type { ActionType } from '@ant-design/pro-components'
-import { Button, Empty, message } from 'antd'
+import { Button, Empty, message, Popconfirm } from 'antd'
+import type { Key } from 'react'
 import { useRef, useState } from 'react'
 import {
   deleteFormTemplate,
@@ -21,6 +22,7 @@ const FormTemplate = () => {
   const detailRef = useRef<DetailRef>(null)
   const actionRef = useRef<ActionType | undefined>(undefined)
   const [exportParams, setExportParams] = useState<GetFormTemplatePageParams>({})
+  const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([])
 
   const openDetail = (mode: FormMode, id?: number) => {
     detailRef.current?.open(mode, id)
@@ -29,6 +31,14 @@ const FormTemplate = () => {
   const handleDelete = async (record: { id: number }) => {
     await deleteFormTemplate({ id: record.id })
     message.success('操作成功')
+    setSelectedRowKeys((keys) => keys.filter((key) => key !== record.id))
+    actionRef.current?.reload()
+  }
+
+  const handleBatchDelete = async () => {
+    await Promise.all(selectedRowKeys.map((id) => deleteFormTemplate({ id: Number(id) })))
+    message.success('操作成功')
+    setSelectedRowKeys([])
     actionRef.current?.reload()
   }
 
@@ -69,6 +79,10 @@ const FormTemplate = () => {
         }}
         columns={columns(openDetail, handleDelete)}
         rowKey="id"
+        rowSelection={{
+          selectedRowKeys,
+          onChange: setSelectedRowKeys,
+        }}
         pagination={{
           showSizeChanger: true,
           showQuickJumper: true,
@@ -77,6 +91,24 @@ const FormTemplate = () => {
         }}
         toolbar={{
           actions: [
+            <Popconfirm
+            key="delete"
+            title="确定删除选中的发薪流水吗？"
+            onConfirm={handleBatchDelete}
+            okText="确定"
+            cancelText="取消"
+            disabled={selectedRowKeys.length === 0}
+          >
+            <Button
+              onClick={() => {
+                if (selectedRowKeys.length === 0) {
+                  message.warning('请选择要删除的工资条')
+                }
+              }}
+            >
+              删除
+            </Button>
+          </Popconfirm>,
             <Button key="add" type="primary" onClick={() => openDetail('add')}>
               新增
             </Button>,
